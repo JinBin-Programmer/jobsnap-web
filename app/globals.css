@@ -1,0 +1,369 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   JobSnap design tokens — from the Claude Design handoff (JobSnap.dc.html).
+   Cool-toned palette chosen to avoid the generic "AI SaaS" navy/blue-gradient
+   look: Iron Grey primary, Steel Blue secondary accent, Icy Blue light accent,
+   on a cool off-white background (not stark white).
+   ============================================================================ */
+:root {
+  --radius: 0.5rem;
+
+  --background: #f4f7f9;
+  --foreground: #1f2430;
+  --card: #ffffff;
+  --card-foreground: #1f2430;
+  --popover: #ffffff;
+  --popover-foreground: #1f2430;
+
+  /* Iron Grey — primary brand color */
+  --primary: #24343a;
+  --primary-hover: #12191d;
+  --primary-foreground: #ffffff;
+
+  /* Steel Blue — secondary accent (links, icon chips, secondary CTAs) */
+  --secondary: #dce7f2;
+  --secondary-foreground: #2c5580;
+  --steel: #4c7a94;
+  --steel-foreground: #ffffff;
+
+  /* Icy Blue — light accent (logo mark, "most popular" ribbon) */
+  --icy: #a9cef4;
+  --icy-foreground: #1b3a52;
+
+  /* Muted panels sit flush with the page background; cards lift off it. */
+  --muted: #f4f7f9;
+  --muted-foreground: #6e7d85;
+
+  /* Hover/active tint for nav items, subtle buttons */
+  --accent: #e4eef5;
+  --accent-foreground: #24343a;
+
+  --destructive: #b0432e;
+  --destructive-foreground: #ffffff;
+
+  --border: #e1e8ed;
+  --border-strong: #dce4e9;
+  --divider: #e7edf1;
+  --input: #c7d2d9;
+  --ring: #4c7a94;
+
+  /* Three-tier text hierarchy used throughout the design */
+  --ink: #1f2430;
+  --body-text: #455158;
+
+  /* Status/priority semantic colors (see lib/status-colors.ts for the full
+     per-status bg/fg pairs — these are just the raw hues). */
+  --success: #2f7d5a;
+  --success-foreground: #ffffff;
+
+  /* Per-status/priority/actor pairs — lib/status-colors.ts reads these
+     through var(), not literal hex, so StatusBadge/PriorityBadge/timeline
+     dots repaint automatically for dark mode without any component change.
+     Light values here match the original design handoff exactly. */
+  --status-pending-bg: #efeae0;
+  --status-pending-fg: #6b6459;
+  --status-in_progress-bg: #dce7f2;
+  --status-in_progress-fg: #2c5580;
+  --status-on_hold-bg: #f3e6c8;
+  --status-on_hold-fg: #3a6e8f;
+  --status-completed-bg: #dceee1;
+  --status-completed-fg: #215c40;
+  --status-verified-bg: #dcebfb;
+  --status-verified-fg: #1b3a52;
+  --status-cancelled-bg: #f1dcd6;
+  --status-cancelled-fg: #8a2e1d;
+
+  --priority-low: #6e7d85;
+  --priority-medium: #4c7a94;
+  --priority-high: #b8842b;
+  --priority-urgent: #b0432e;
+
+  --actor-worker: #2f7d5a;
+  --actor-boss: #4c7a94;
+
+  /* Neutral track color for meters/progress bars (storage usage etc.) */
+  --meter-track: #efeae0;
+}
+
+/* ---------------------------------------------------------------------------
+   Dark theme — applied via class="dark" on <html> (app/layout.tsx), so it's
+   the sitewide default: marketing site, auth pages, and the dashboard.
+   Every component reads colors through these same CSS variables (Tailwind's
+   bg-card/text-ink/border-border/etc. and the status/priority var() lookups
+   above), so this one block is what repaints almost everything — no
+   per-component dark: classes needed.
+
+   Client-facing reports are the deliberate exception: they're printed/
+   shared documents and must stay white regardless of the site's theme, so
+   app/r/[token]/page.tsx and the report preview embedded in
+   app/dashboard/reports/[id]/page.tsx apply class="light" (below) to punch
+   back to the light tokens for just that subtree.
+   --------------------------------------------------------------------------- */
+.dark {
+  --background: #0e0f11;
+  --foreground: #e6e6e6;
+  --card: #17181b;
+  --card-foreground: #e6e6e6;
+  --popover: #1c1d21;
+  --popover-foreground: #e6e6e6;
+
+  /* Iron Grey (the light-mode primary) reads almost invisibly flat against
+     a near-black page — ~1.5:1 contrast, well under WCAG's 3:1 floor. Steel
+     Blue already carries ~4:1 contrast against both the page and white
+     button text (verified), so dark mode promotes it to primary instead of
+     inventing a new color — same brand identity, the half of it that
+     actually has contrast here. Left as white-on-steel (not a lighter fill)
+     specifically because several buttons across both apps hardcode white
+     button text instead of the paired -foreground token — swapping primary
+     to a LIGHT fill would silently break contrast on every one of those. */
+  --primary: #4c7a94;
+  --primary-hover: #5f8fab;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1c2a33;
+  --secondary-foreground: #9fc5dc;
+
+  --muted: #1b1c1f;
+  --muted-foreground: #9ba1a6;
+
+  --accent: #1e262b;
+  --accent-foreground: #e6e6e6;
+
+  --border: #26282c;
+  --border-strong: #34373c;
+  --divider: #232529;
+  --input: #34373c;
+
+  --ink: #f2f2f2;
+  --body-text: #c7cbce;
+
+  /* --destructive, --success, --steel, --icy, --ring and their -foreground
+     pairs are intentionally NOT overridden here — each already carries
+     4.8:1+ contrast with white text and 3.7:1+ against the dark surfaces
+     (verified), so the light-mode values keep working unchanged and
+     naturally cascade down from :root. */
+
+  --status-pending-bg: #35312a;
+  --status-pending-fg: #d8cfc0;
+  --status-in_progress-bg: #1c3049;
+  --status-in_progress-fg: #8fb8de;
+  --status-on_hold-bg: #423922;
+  --status-on_hold-fg: #86bcda;
+  --status-completed-bg: #1a3327;
+  --status-completed-fg: #6fcb9b;
+  --status-verified-bg: #182b3d;
+  --status-verified-fg: #8fc3ea;
+  --status-cancelled-bg: #3a2721;
+  --status-cancelled-fg: #e29483;
+
+  --priority-low: #9aa7ad;
+  --priority-medium: #7fb2d0;
+  --priority-high: #e3b15c;
+  --priority-urgent: #e2745c;
+
+  --actor-worker: #4fae7c;
+  --actor-boss: #7fb2d0;
+
+  --meter-track: #26282c;
+}
+
+/* Forces the original light tokens back on for a subtree even though an
+   ancestor is class="dark" — used only by client-facing reports. Values are
+   an exact duplicate of :root above; keep the two in sync if the light
+   palette ever changes. */
+.light {
+  --background: #f4f7f9;
+  --foreground: #1f2430;
+  --card: #ffffff;
+  --card-foreground: #1f2430;
+  --popover: #ffffff;
+  --popover-foreground: #1f2430;
+
+  --primary: #24343a;
+  --primary-hover: #12191d;
+  --primary-foreground: #ffffff;
+
+  --secondary: #dce7f2;
+  --secondary-foreground: #2c5580;
+  --steel: #4c7a94;
+  --steel-foreground: #ffffff;
+
+  --icy: #a9cef4;
+  --icy-foreground: #1b3a52;
+
+  --muted: #f4f7f9;
+  --muted-foreground: #6e7d85;
+
+  --accent: #e4eef5;
+  --accent-foreground: #24343a;
+
+  --destructive: #b0432e;
+  --destructive-foreground: #ffffff;
+
+  --border: #e1e8ed;
+  --border-strong: #dce4e9;
+  --divider: #e7edf1;
+  --input: #c7d2d9;
+  --ring: #4c7a94;
+
+  --ink: #1f2430;
+  --body-text: #455158;
+
+  --success: #2f7d5a;
+  --success-foreground: #ffffff;
+
+  --status-pending-bg: #efeae0;
+  --status-pending-fg: #6b6459;
+  --status-in_progress-bg: #dce7f2;
+  --status-in_progress-fg: #2c5580;
+  --status-on_hold-bg: #f3e6c8;
+  --status-on_hold-fg: #3a6e8f;
+  --status-completed-bg: #dceee1;
+  --status-completed-fg: #215c40;
+  --status-verified-bg: #dcebfb;
+  --status-verified-fg: #1b3a52;
+  --status-cancelled-bg: #f1dcd6;
+  --status-cancelled-fg: #8a2e1d;
+
+  --priority-low: #6e7d85;
+  --priority-medium: #4c7a94;
+  --priority-high: #b8842b;
+  --priority-urgent: #b0432e;
+
+  --actor-worker: #2f7d5a;
+  --actor-boss: #4c7a94;
+
+  --meter-track: #efeae0;
+}
+
+@theme inline {
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-public-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-steel: var(--steel);
+  --color-steel-foreground: var(--steel-foreground);
+  --color-icy: var(--icy);
+  --color-icy-foreground: var(--icy-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-divider: var(--divider);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-body-text: var(--body-text);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-meter-track: var(--meter-track);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  /* Smooth, consistent hover/focus transitions on every interactive element
+     site-wide (nav links, table rows, buttons, form inputs) — one rule
+     instead of hand-adding transition-* utilities piecemeal. Elements that
+     already carry their own Tailwind transition-* class (e.g. .card-lift)
+     simply override this, no conflict. */
+  a, button, summary, input, select, textarea, [role="button"] {
+    transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+    transition-timing-function: ease;
+    transition-duration: 150ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a, button, summary, input, select, textarea, [role="button"] {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Signature motifs
+   --------------------------------------------------------------------------- */
+
+.gradient-hero {
+  background: linear-gradient(135deg, #12191d 0%, #24343a 55%, #33474f 100%);
+}
+
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -20px rgba(28, 42, 48, 0.32);
+}
+
+/* Layered soft shadow used on elevated cards throughout the design. */
+.card-shadow {
+  box-shadow: 0 1px 2px rgba(28, 42, 48, 0.05), 0 16px 32px -20px rgba(28, 42, 48, 0.22);
+}
+
+/* ---------------------------------------------------------------------------
+   "See it in action" demo loop — a silent, looping animation built from the
+   real UI components (no video file). Staggered on one 3s cycle: the
+   capture button pulses first, the connector "flows" next, then the proof
+   glows on arrival — selling motion from phone to dashboard.
+   --------------------------------------------------------------------------- */
+@keyframes demo-pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(36, 52, 58, 0); }
+  50% { box-shadow: 0 0 0 8px rgba(36, 52, 58, 0.18); }
+}
+.demo-snap {
+  animation: demo-pulse-ring 3s ease-in-out infinite;
+}
+
+@keyframes demo-flow {
+  0%, 20% { opacity: 0.35; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(4px); }
+  80%, 100% { opacity: 0.35; transform: translateX(0); }
+}
+.demo-flow {
+  animation: demo-flow 3s ease-in-out infinite;
+}
+
+@keyframes demo-arrive-glow {
+  0%, 45%, 100% { box-shadow: 0 0 0 0 rgba(47, 125, 90, 0); }
+  65% { box-shadow: 0 0 0 8px rgba(47, 125, 90, 0.25); }
+}
+.demo-arrive {
+  animation: demo-arrive-glow 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-snap, .demo-flow, .demo-arrive {
+    animation: none;
+  }
+}
