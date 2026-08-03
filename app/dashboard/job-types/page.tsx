@@ -11,11 +11,11 @@ import ConfirmSubmitButton from "@/app/components/ConfirmSubmitButton";
 export default async function JobTypesPage() {
   const { supabase, profile } = await requireProfile();
 
-  const { data: jobTypes } = await supabase
-    .from("job_types")
-    .select("*")
-    .eq("org_id", profile.org_id)
-    .order("name");
+  const [{ data: jobTypes }, { data: kpiSettings }] = await Promise.all([
+    supabase.from("job_types").select("*").eq("org_id", profile.org_id).order("name"),
+    supabase.from("kpi_settings").select("task_kpi_enabled").eq("org_id", profile.org_id).single(),
+  ]);
+  const taskKpiEnabled = (kpiSettings as { task_kpi_enabled: boolean } | null)?.task_kpi_enabled ?? false;
 
   return (
     <div>
@@ -33,6 +33,12 @@ export default async function JobTypesPage() {
             Colour
             <input name="color" type="color" defaultValue="#24343A" className="h-8 w-12 rounded border border-input" />
           </label>
+          {taskKpiEnabled && (
+            <label className="block text-sm text-muted-foreground">
+              <span className="mb-1 block text-xs">KPI points (1 = counts as one job)</span>
+              <Input name="kpi_points" type="number" min={0.5} step={0.5} defaultValue={1} />
+            </label>
+          )}
           <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
             Add job type
           </Button>
@@ -55,6 +61,9 @@ export default async function JobTypesPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      {taskKpiEnabled && (
+                        <span className="text-xs font-semibold text-muted-foreground">{j.kpi_points} pts</span>
+                      )}
                       <Link
                         href={`/dashboard/job-types/${j.id}/edit`}
                         className="text-muted-foreground hover:text-primary"

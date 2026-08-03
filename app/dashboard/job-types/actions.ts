@@ -9,6 +9,11 @@ function emptyToNull(v: FormDataEntryValue | null) {
   return s === "" ? null : s;
 }
 
+function kpiPoints(v: FormDataEntryValue | null) {
+  const n = Number(String(v ?? "").trim());
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
 export async function addJobType(formData: FormData) {
   const { supabase, profile } = await requireProfile();
   if (!isManager(profile)) throw new Error("Not allowed");
@@ -21,6 +26,7 @@ export async function addJobType(formData: FormData) {
     name,
     description: emptyToNull(formData.get("description")),
     color: String(formData.get("color") || "#24343A"),
+    kpi_points: kpiPoints(formData.get("kpi_points")),
   });
   if (error) throw new Error(error.message);
 
@@ -34,12 +40,18 @@ export async function updateJobType(id: string, formData: FormData) {
   const name = String(formData.get("name") || "").trim();
   if (!name) throw new Error("Name is required");
 
+  // kpi_points is only rendered in the form when task-based KPI is on — if
+  // it's absent, leave the stored value untouched rather than resetting it
+  // back to the default.
+  const kpiPointsRaw = formData.get("kpi_points");
+
   const { error } = await supabase
     .from("job_types")
     .update({
       name,
       description: emptyToNull(formData.get("description")),
       color: String(formData.get("color") || "#24343A"),
+      ...(kpiPointsRaw !== null ? { kpi_points: kpiPoints(kpiPointsRaw) } : {}),
     })
     .eq("id", id)
     .eq("org_id", profile.org_id);

@@ -327,7 +327,12 @@ export default function Home() {
 
       {/* Footer */}
       <div className="px-6 py-8 text-center sm:px-12">
-        <p className="text-[13px] text-muted-foreground">© 2026 JobSnap Sdn Bhd. Kuala Lumpur, Malaysia.</p>
+        <p className="text-[13px] text-muted-foreground">
+          © 2026 JobSnap Sdn Bhd. Kuala Lumpur, Malaysia. ·{" "}
+          <Link href="/download" className="font-semibold text-primary hover:underline">
+            Download the worker app
+          </Link>
+        </p>
       </div>
     </main>
   );

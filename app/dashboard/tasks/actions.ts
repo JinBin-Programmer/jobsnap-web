@@ -236,6 +236,27 @@ export async function updateStopStatus(taskId: string, stopId: string, isDone: b
   revalidatePath(`/dashboard/tasks/${taskId}`);
 }
 
+// Manager correction for a worker-logged money-KPI amount (typo fix from
+// the office). Requires supabase/kpi.sql's updates_manager_write policy.
+export async function updateCollectedAmount(taskId: string, updateId: string, formData: FormData) {
+  const { supabase, profile } = await requireProfile();
+  if (!isManager(profile)) throw new Error("Not allowed");
+
+  const amount = Number(String(formData.get("amount") || "").trim());
+  if (!Number.isFinite(amount) || amount < 0) throw new Error("Invalid amount");
+
+  const { error } = await supabase
+    .from("task_updates")
+    .update({ amount_collected: amount })
+    .eq("id", updateId)
+    .eq("task_id", taskId)
+    .eq("org_id", profile.org_id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/dashboard/tasks/${taskId}`);
+  revalidatePath("/dashboard/kpi");
+}
+
 // Lets a manager post a photo/remark update directly from the web dashboard —
 // previously only the assigned worker could do this, from the mobile app.
 // Requires supabase/manager-web-updates.sql to have been run.

@@ -13,13 +13,12 @@ export default async function EditJobTypePage({ params }: { params: Promise<{ id
   const { id } = await params;
   const { supabase, profile } = await requireProfile();
 
-  const { data: jobType } = await supabase
-    .from("job_types")
-    .select("*")
-    .eq("id", id)
-    .eq("org_id", profile.org_id)
-    .single<JobType>();
+  const [{ data: jobType }, { data: kpiSettings }] = await Promise.all([
+    supabase.from("job_types").select("*").eq("id", id).eq("org_id", profile.org_id).single<JobType>(),
+    supabase.from("kpi_settings").select("task_kpi_enabled").eq("org_id", profile.org_id).single(),
+  ]);
   if (!jobType) notFound();
+  const taskKpiEnabled = (kpiSettings as { task_kpi_enabled: boolean } | null)?.task_kpi_enabled ?? false;
 
   return (
     <div className="mx-auto max-w-lg">
@@ -54,6 +53,12 @@ export default async function EditJobTypePage({ params }: { params: Promise<{ id
             className="h-8 w-12 rounded border border-input"
           />
         </label>
+        {taskKpiEnabled && (
+          <div className="space-y-1.5">
+            <Label htmlFor="kpi_points">KPI points (1 = counts as one job)</Label>
+            <Input id="kpi_points" name="kpi_points" type="number" min={0.5} step={0.5} defaultValue={jobType.kpi_points} />
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-2">
           <Button asChild variant="outline">

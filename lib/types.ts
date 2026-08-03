@@ -56,6 +56,7 @@ export interface JobType {
   name: string;
   description: string | null;
   color: string | null;
+  kpi_points: number;
   created_at: string;
 }
 
@@ -119,6 +120,7 @@ export interface TaskUpdate {
   accuracy: number | null;
   checkin_id: string | null;
   stop_id: string | null;
+  amount_collected: number | null;
   created_at: string;
 }
 
@@ -156,6 +158,58 @@ export interface Report {
   client_rating: number | null;
   client_feedback: string | null;
   rated_at: string | null;
+}
+
+// KPI tracking — see supabase/kpi.sql. "task" metric = points earned from
+// completed jobs (job_types.kpi_points, default 1 = pure quantity). "money"
+// metric = cash/e-wallet amounts workers log on job completion.
+export type KpiMetric = "task" | "money";
+export type KpiPeriod = "daily" | "weekly" | "monthly";
+
+export interface KpiSettings {
+  org_id: string;
+  kpi_enabled: boolean;
+  task_kpi_enabled: boolean;
+  task_kpi_period: KpiPeriod;
+  task_kpi_target: number | null;
+  money_kpi_enabled: boolean;
+  money_kpi_period: KpiPeriod;
+  money_kpi_target: number | null;
+  updated_at: string;
+}
+
+export interface WorkerKpiTarget {
+  id: string;
+  org_id: string;
+  worker_id: string;
+  metric: KpiMetric;
+  target: number;
+  updated_at: string;
+}
+
+export interface KpiBonusTier {
+  id: string;
+  org_id: string;
+  metric: KpiMetric;
+  threshold_pct: number;
+  bonus_amount: number;
+  created_at: string;
+}
+
+// One row per worker, as returned by the kpi_progress() RPC.
+export interface KpiProgressRow {
+  worker_id: string;
+  full_name: string | null;
+  task_enabled: boolean;
+  task_period: KpiPeriod;
+  task_target: number | null;
+  task_achieved: number;
+  task_bonus: number;
+  money_enabled: boolean;
+  money_period: KpiPeriod;
+  money_target: number | null;
+  money_achieved: number;
+  money_bonus: number;
 }
 
 export const STATUS_LABELS: Record<TaskStatus, string> = {

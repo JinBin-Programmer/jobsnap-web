@@ -54,7 +54,13 @@ export default async function WorkersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink">Workers</h1>
-          <p className="text-sm text-muted-foreground">Accounts that log in to the mobile app.</p>
+          <p className="text-sm text-muted-foreground">
+            Accounts that log in to the mobile app.{" "}
+            <a href="/download" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+              Share the app download link
+            </a>{" "}
+            with a new worker after adding them.
+          </p>
         </div>
         <AddWorker />
       </div>

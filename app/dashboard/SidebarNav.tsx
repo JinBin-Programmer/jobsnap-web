@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ClipboardList, Users, Building2, Tags, CalendarRange, Images, FileText } from "lucide-react";
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Users,
+  Building2,
+  Tags,
+  CalendarRange,
+  Images,
+  FileText,
+  TrendingUp,
+  Settings,
+} from "lucide-react";
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -13,6 +24,8 @@ const nav = [
   { href: "/dashboard/schedule", label: "Team Schedule", icon: CalendarRange },
   { href: "/dashboard/media", label: "Media Library", icon: Images },
   { href: "/dashboard/reports", label: "Reports", icon: FileText },
+  { href: "/dashboard/kpi", label: "KPI", icon: TrendingUp },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export default function SidebarNav() {

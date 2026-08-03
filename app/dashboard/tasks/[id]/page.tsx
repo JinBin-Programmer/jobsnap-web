@@ -13,7 +13,13 @@ import {
   type TaskUpdateMedia,
   type TaskStop,
 } from "@/lib/types";
-import { addTaskUpdate, updateStopStatus, duplicateTask, deleteTask } from "@/app/dashboard/tasks/actions";
+import {
+  addTaskUpdate,
+  updateStopStatus,
+  updateCollectedAmount,
+  duplicateTask,
+  deleteTask,
+} from "@/app/dashboard/tasks/actions";
 import { Input } from "@/app/components/ui/input";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Button } from "@/app/components/ui/button";
@@ -297,6 +303,30 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
                           )}
                         </div>
                         {u.remark && <p className="mb-2 text-sm text-body-text">{u.remark}</p>}
+                        {u.amount_collected != null && (
+                          <details className="group mb-2 inline-block">
+                            <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-sm font-semibold text-success">
+                              Amount collected: RM{u.amount_collected.toFixed(2)}
+                              <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
+                            </summary>
+                            <form
+                              action={updateCollectedAmount.bind(null, t.id, u.id)}
+                              className="mt-1.5 flex items-center gap-2"
+                            >
+                              <Input
+                                type="number"
+                                name="amount"
+                                min={0}
+                                step={0.01}
+                                defaultValue={u.amount_collected}
+                                className="h-8 w-28 text-sm"
+                              />
+                              <Button type="submit" size="sm" variant="outline">
+                                Save
+                              </Button>
+                            </form>
+                          </details>
+                        )}
                         {imgs.length > 0 && (
                           <div className="mb-2 flex flex-wrap gap-2">
                             {imgs.map((m, i) =>
