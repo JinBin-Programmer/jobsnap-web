@@ -291,8 +291,11 @@ export async function addTaskUpdate(taskId: string, formData: FormData) {
     .single();
   if (updErr || !update) throw new Error(updErr?.message || "Failed to save update");
 
-  for (let i = 0; i < photos.length; i++) {
-    const file = photos[i];
+  // Photo uploads and the task status change don't depend on each other, so
+  // run them concurrently instead of one-network-round-trip-at-a-time —
+  // previously a 3-photo update meant 6+ sequential round trips, which is
+  // very noticeable given the DB isn't in the same region as this server.
+  const uploadPhoto = async (file: File, i: number) => {
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const path = `${orgId}/${taskId}/${update.id}/${Date.now()}_${i}.${ext}`;
     const bytes = await file.arrayBuffer();
@@ -313,12 +316,15 @@ export async function addTaskUpdate(taskId: string, formData: FormData) {
     if (mediaErr) {
       throw new Error(mediaErr.message?.includes("STORAGE_LIMIT_REACHED") ? QUOTA_MESSAGE : mediaErr.message);
     }
-  }
+  };
 
-  if (status) {
+  const applyStatus = async () => {
+    if (!status) return;
     const { error: tErr } = await supabase.from("tasks").update({ status }).eq("id", taskId).eq("org_id", orgId);
     if (tErr) throw new Error(tErr.message);
-  }
+  };
+
+  await Promise.all([...photos.map(uploadPhoto), applyStatus()]);
 
   revalidatePath(`/dashboard/tasks/${taskId}`);
 }

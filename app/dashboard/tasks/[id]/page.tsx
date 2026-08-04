@@ -26,6 +26,7 @@ import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
 import StopsMapDisplay from "@/app/components/StopsMapDisplay";
 import ConfirmSubmitButton from "@/app/components/ConfirmSubmitButton";
+import ClickableImage from "@/app/components/ClickableImage";
 
 const selectClass =
   "h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
@@ -213,8 +214,12 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
                             m.type === "video" ? (
                               <video key={i} src={m.url} controls className="h-12 w-16 rounded object-cover" />
                             ) : (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img key={i} src={m.url} alt="Stop proof" className="h-12 w-16 rounded object-cover" />
+                              <ClickableImage
+                                key={i}
+                                src={m.url}
+                                alt="Stop proof"
+                                className="h-12 w-16 rounded object-cover"
+                              />
                             )
                           )}
                         </div>
@@ -333,8 +338,12 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
                               m.type === "video" ? (
                                 <video key={i} src={m.url} controls className="h-[70px] w-[90px] rounded-lg object-cover" />
                               ) : (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img key={i} src={m.url} alt="Job photo" className="h-[70px] w-[90px] rounded-lg object-cover" />
+                                <ClickableImage
+                                  key={i}
+                                  src={m.url}
+                                  alt="Job photo"
+                                  className="h-[70px] w-[90px] rounded-lg object-cover"
+                                />
                               )
                             )}
                           </div>
